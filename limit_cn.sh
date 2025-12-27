@@ -96,37 +96,6 @@ netfilter-persistent save
 # 保存 ipset 规则 (确保重启后集合还在)
 # Debian 的 netfilter-persistent 插件通常会自动处理，但为了保险手动存一份
 ipset save > /etc/iptables/ipsets
-echo ">> [5.5/6] 配置 Systemd 启动顺序..."
-
-# 1. 确保存储目录存在
-mkdir -p /etc/iptables
-
-# 2. 创建一个专门用于恢复 ipset 的 systemd 服务
-cat > /etc/systemd/system/load-ipsets.service <<EOF
-[Unit]
-Description=Load ipsets before iptables
-# 关键点：必须在 netfilter-persistent (加载 iptables) 之前运行
-Before=netfilter-persistent.service
-Requires=network-pre.target
-After=network-pre.target
-
-[Service]
-Type=oneshot
-ExecStart=/sbin/ipset restore -f /etc/iptables/ipsets
-# 如果恢复失败（比如文件不存在），不要报错退出，以免卡住启动
-ExecStartPost=/bin/true
-RemainAfterExit=yes
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-# 3. 重新加载 daemon 并启用服务
-systemctl daemon-reload
-systemctl enable load-ipsets.service
-
-# 4. 确保当前规则已保存到指定位置
-ipset save > /etc/iptables/ipsets
 
 echo ">> [6/6] 完成！"
 echo "========================================================"
