@@ -10,7 +10,7 @@ SSH_PORT=22
 # 配置：是否允许全球 SSH？ (建议 true，防止误锁)
 # true = 允许所有 IP 连 SSH
 # false = 只允许中国 IP 连 SSH (风险较高，请确保你有 VNC)
-ALLOW_ALL_SSH=true
+ALLOW_ALL_SSH=false
 
 # 数据源
 CN_IP_URL="http://www.ipdeny.com/ipblocks/data/countries/cn.zone"
